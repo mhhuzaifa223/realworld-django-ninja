@@ -40,3 +40,16 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           additional_permissions: |
             actions: read
+
+      - name: Audit log
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          ACTOR: ${{ github.actor }}
+          EVENT: ${{ github.event_name }}
+          RESULT: ${{ steps.claude.outcome }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/issues/$NUMBER/comments" \
+            -f body="AUDIT | who: writing agent, started by $ACTOR | what: run on $EVENT, result: $RESULT | when: $(date -u +%Y-%m-%dT%H:%M:%SZ) | ticket: #$NUMBER | run: $RUN_URL"
