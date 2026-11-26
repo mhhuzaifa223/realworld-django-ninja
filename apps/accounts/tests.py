@@ -14,6 +14,21 @@ from helpers.jwt_utils import create_jwt_token
 User = get_user_model()
 
 
+class HealthCheckTestCase(TestCase):
+    def test_health_check(self):
+        client = TestClient(router)
+        with self.assertNumQueries(0):
+            response = client.get("health")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(loads(response.content), {"status": "ok"})
+
+    def test_health_check_via_full_url(self):
+        with self.assertNumQueries(0):
+            response = self.client.get("/api/health")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
+
+
 class AccountRegistrationTestCase(TestCase):
     def setUp(self):
         self.url = "users"
