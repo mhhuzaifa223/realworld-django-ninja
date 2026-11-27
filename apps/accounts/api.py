@@ -24,6 +24,11 @@ from helpers.jwt_utils import AuthedRequest, TokenAuth, create_jwt_token
 router = Router()
 
 
+@router.get("/health", auth=None, response={200: dict[str, str]})
+def health_check(request) -> dict[str, str]:
+    return {"status": "ok"}
+
+
 @router.post("/users", response={201: Any, 400: Any, 409: Any})
 def account_registration(request, data: UserCreateSchema) -> tuple[int, dict[str, Any]]:
     try:
